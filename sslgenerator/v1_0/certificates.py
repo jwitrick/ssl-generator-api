@@ -15,6 +15,7 @@ class Certificates(resource.Resource):
     isLeaf=True
     def render_GET(self, request):
         print "GETTING TO COORRECT PLACE"
+        print request.postpath
         return "HELLO"
 
     def render_POST(self, request):

@@ -9,15 +9,20 @@ from pprint import pprint
 from json import JSONEncoder
 from datetime import datetime
 import json
+import imp
 
+from .errors import *
+from .common.config import cfg
 from .v1_0.certificates import *
+from .v1_0.caauthorities import *
 
+VERSION = "v1.0"
 
 class V1_0(resource.Resource):
 
-#    isLeaf = True
-
     def __init__(self):
-        print "INTO constructor"
         resource.Resource.__init__(self)
+        self.putChild('certificate', Certificates())
         self.putChild('certificates', Certificates())
+        self.putChild('caauthorities', CAAuthorities())
+        self.putChild('caauthority', CAAuthorities())

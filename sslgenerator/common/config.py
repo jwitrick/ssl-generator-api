@@ -35,7 +35,7 @@ except NameError:
         global_config = '/etc/ssl-generator.ini'
         rel_config = 'etc/ssl-generator.ini'
         fnames = [home_config, global_config, rel_config]
-    cfg = MigrateConfig(fnames, ['general', 'routes'])
+    cfg = MigrateConfig(fnames, ['general', 'routes', "v1.0:routes"])
 
 
 # vim:et:fdm=marker:sts=4:sw=4:ts=4
