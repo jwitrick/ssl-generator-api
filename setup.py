@@ -8,7 +8,7 @@ setup(name='ssl-generator',
       author_email='justin.witrick@mailtrust.com',
       description='SSL API for auto signing an ssl request.',
       packages=find_packages(),
-      entry_points={'console_scripts': ['ssl-generator = sslgenerator.test:main',]},
+      entry_points={'console_scripts': ['ssl-generator = sslgenerator.sslgenerator:main',]},
       install_requires=['twisted',])
 
 

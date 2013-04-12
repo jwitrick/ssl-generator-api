@@ -59,3 +59,12 @@ class UnauthorizedToken(Error):
     def __init__(self, admin_token):
         super(UnauthorizedToken, self).__init__(admin_token=admin_token)
 
+class RouteNotSupported(Error):
+    """The specified route is not supported.
+    %(route)s
+    """
+    code = 405
+    title = "Method Not Allowed"
+    def __init__(self, route):
+        super(RouteNotSupported, self).__init__(route=route)
+
