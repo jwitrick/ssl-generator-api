@@ -68,3 +68,11 @@ class RouteNotSupported(Error):
     def __init__(self, route):
         super(RouteNotSupported, self).__init__(route=route)
 
+class CAAuthorityNotFound(Error):
+    """The specified Ca Authority not found.
+    %(ca_authority)s
+    """
+    code = 404
+    title = "Not Found"
+    def __init__(self, ca_authority):
+        super(CAAuthorityNotFound, self).__init__(ca_authority=ca_authority)
