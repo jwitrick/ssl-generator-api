@@ -21,7 +21,10 @@ class MigrateConfig(object):
         parser.read(fnames)
 
         for section in sections:
-            setattr(self, section, AttrDict(parser.items(section)))
+            new_sec = section
+            for character in [".", ":"]:
+                new_sec = new_sec.replace(character, '_')
+            setattr(self, new_sec, AttrDict(parser.items(section)))
 
 
 try:

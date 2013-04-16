@@ -8,21 +8,26 @@ from twisted.python import log
 from pprint import pprint
 from json import JSONEncoder
 from datetime import datetime
+from pprint import pprint
 import json
 import imp
+import importlib
 
 from .errors import *
 from .common.config import cfg
-from .v1_0.certificates import *
-from .v1_0.caauthorities import *
+
 
 VERSION = "v1.0"
+routes = cfg.v1_0_routes
+mods = []
 
 class V1_0(resource.Resource):
 
     def __init__(self):
         resource.Resource.__init__(self)
-        self.putChild('certificate', Certificates())
-        self.putChild('certificates', Certificates())
-        self.putChild('caauthorities', CAAuthorities())
-        self.putChild('caauthority', CAAuthorities())
+        for k, v in routes.iteritems():
+            mod = ".v1_0."+ k
+            mod = importlib.import_module(mod, 'sslgenerator')
+            c = getattr(mod,v)()
+            self.putChild(k, c)
+

@@ -1,5 +1,7 @@
 
 from json import JSONEncoder
+import re
+
 class Error(StandardError):
     """Base error class.
 
