@@ -1,9 +1,10 @@
 import json
 from json import JSONEncoder
 
+
 def error_formatter(exception, format_type=None):
-    if format_type == None:
-       format_type = 'json'
+    if format_type is None:
+        format_type = 'json'
     if format_type == 'json':
         result = {}
         result['error'] = {}

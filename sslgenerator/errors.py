@@ -2,11 +2,11 @@
 from json import JSONEncoder
 import re
 
+
 class Error(StandardError):
     """Base error class.
 
     Child classes should define an HTTP status code, title, and doc string.
-   
     """
     code = None
     title = None
@@ -41,6 +41,7 @@ class Error(StandardError):
         string = string.strip()
         return string
 
+
 class UnsupportedVersion(Error):
     """Recieved an unsupported api version identifier.
 
@@ -49,8 +50,10 @@ class UnsupportedVersion(Error):
     """
     code = 400
     title = "Bad Request"
+
     def __init__(self, url_id):
         super(UnsupportedVersion, self).__init__(url_id=url_id)
+
 
 class UnauthorizedToken(Error):
     """Recieved an incorrect x-auth-token.
@@ -58,8 +61,10 @@ class UnauthorizedToken(Error):
     """
     code = 401
     title = "Unauthorized"
+
     def __init__(self, admin_token):
         super(UnauthorizedToken, self).__init__(admin_token=admin_token)
+
 
 class RouteNotSupported(Error):
     """The specified route is not supported.
@@ -67,8 +72,10 @@ class RouteNotSupported(Error):
     """
     code = 405
     title = "Method Not Allowed"
+
     def __init__(self, route):
         super(RouteNotSupported, self).__init__(route=route)
+
 
 class CAAuthorityNotFound(Error):
     """The specified Ca Authority not found.
@@ -76,5 +83,6 @@ class CAAuthorityNotFound(Error):
     """
     code = 404
     title = "Not Found"
+
     def __init__(self, ca_authority):
         super(CAAuthorityNotFound, self).__init__(ca_authority=ca_authority)

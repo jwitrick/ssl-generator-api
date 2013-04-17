@@ -6,6 +6,7 @@ from twisted.trial import unittest
 
 from sslgenerator.v1_0.certificates import *
 
+
 class Certificates_v1_0_TestCase(unittest.TestCase):
 
     def _listen(self, site):

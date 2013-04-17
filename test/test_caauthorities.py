@@ -9,6 +9,7 @@ from mock import Mock, MagicMock, patch
 
 from sslgenerator.v1_0.caauthorities import *
 
+
 class CAAuthorities_v1_0_TestCase(unittest.TestCase):
 
     def setUp(self):
@@ -60,7 +61,10 @@ class CAAuthorities_v1_0_TestCase(unittest.TestCase):
         request = DummyRequest(['test'])
         cert = CAAuthorities()
         actual_result = cert.render_GET(request)
-        expected_result = {'error': {'code':404, 'title': 'Not Found', 'message': 'The specified Ca Authority not found.\n    test\n    '}}
+        expected_result = {'error':
+                           {'code': 404, 'title': 'Not Found',
+                           'message': 'The specified Ca Authority ' +
+                           'not found.\n    test\n    '}}
         encoded = JSONEncoder().encode(expected_result)
         self.assertEquals(encoded, actual_result)
 
@@ -68,7 +72,8 @@ class CAAuthorities_v1_0_TestCase(unittest.TestCase):
         sample_request_data = {}
         sample_request_data['ca_authority'] = {}
         sample_request_data['ca_authority']['name'] = 'test123'
-        sample_request_data['ca_authority']['description'] = 'A CA authority to handle all certs for test'
+        description = 'A CA authority to handle all certs for test'
+        sample_request_data['ca_authority']['description'] = description
 
         self.assertTrue(False)
 
@@ -77,5 +82,3 @@ class CAAuthorities_v1_0_TestCase(unittest.TestCase):
 
     def test_create_tenant_valid_data(self):
         self.assertTrue(False)
-
-    

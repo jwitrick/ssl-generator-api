@@ -9,7 +9,6 @@ class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
 
-
     def __getattr__(self, name):
         return self[name]
 
@@ -38,7 +37,7 @@ except NameError:
         global_config = '/etc/ssl-generator.ini'
         rel_config = 'etc/ssl-generator.ini'
         fnames = [home_config, global_config, rel_config]
-    cfg = MigrateConfig(fnames, ['general', 'routes', "v1.0:routes"])
+    cfg = MigrateConfig(fnames, ['general', "v1.0:routes"])
 
 
 # vim:et:fdm=marker:sts=4:sw=4:ts=4
