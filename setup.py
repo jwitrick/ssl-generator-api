@@ -10,7 +10,7 @@ setup(name='ssl-generator',
       packages=find_packages(),
       entry_points={'console_scripts':
               ['ssl-generator = sslgenerator.sslgenerator:main', ]},
-      install_requires=['twisted', "mock", ])
+      install_requires=['twisted', "mock", "simplejson", ])
 
 
 # vim:et:fdm=marker:sts=4:sw=4:ts=4

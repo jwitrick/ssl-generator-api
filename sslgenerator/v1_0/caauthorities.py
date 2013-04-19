@@ -1,15 +1,7 @@
 from __future__ import absolute_import
-from twisted.web import server, resource
-from twisted.application import service, internet
-from twisted.internet import reactor, threads
-from twisted.python.failure import Failure as failure
-from twisted.web.http_headers import Headers
-from twisted.python import log
-from pprint import pprint
-from json import JSONEncoder
-from datetime import datetime
-import json
+from twisted.web import resource
 import os
+import shutil
 
 from ..errors import *
 from ..common.config import cfg
@@ -54,7 +46,18 @@ class CAAuthorities(resource.Resource):
             str(cfg.general.ca_cert_path)), ca_authority)
         if not os.path.exists(specified_ca_path):
             raise CAAuthorityNotFound(ca_authority=ca_authority)
-        return False
+        #TODO: Here I need to call the openssl library to actually
+        #  return the information about this ca_authority
+        return None
+
+    def _delete_specified_ca_authority(self, ca_authority):
+        specified_ca_path = os.path.join(os.path.expanduser(
+            str(cfg.general.ca_cert_path)), ca_authority)
+        if not os.path.exists(specified_ca_path):
+            return True
+        else:
+            shutil.rmtree(specified_ca_path)
+        return True
 
     def _format_ca_authorities(self, ca_authorities, single=True):
         result = {}
@@ -64,17 +67,74 @@ class CAAuthorities(resource.Resource):
             result['ca_authorities'] = ca_authorities
         return JSONEncoder().encode(result)
 
-    def render_POST(self, request):
-        pass
+    _required_fields = ['name', 'days', 'country', 'state/provience',
+                        'locality', 'organization_name', 'organization_unit_name',
+                        'common_name', 'email']
+    def _check_data_for_required_fields(self, data):
+        if data['ca_authority'] is None:
+            raise MissingData(sent_data=data) 
 
-    def render_PUT(self, request):
-        pass
+        for field in self._required_fields:
+            if not field in data['ca_authority'].keys():
+                raise MissingData(sent_data=data)
+        return True
+
+    def _create_specified_ca_authority(self, data):
+        return True
+
+    def render_POST(self, request):
+        """This function will attempt to create a new CA Authority.
+        If the request is empty will return a MissingData error
+        If the ca already exists it will return a DuplicateCAAuthority error.
+        If successful it will return json withe CA info.
+        """
+        ca_authority = {}
+        try:
+            content = request.content.getvalue()
+            if len(content) == 0:
+                raise MissingData(sent_data=content) 
+
+            if request.getHeader('content-type') == 'application/json' or request.getHeader('content-type') is None:
+                content = json.loads(content)
+            else:
+                print request.getHeader('content-type')
+                print "Unsupported content-type"
+
+            self._check_data_for_required_fields(content)
+            specified_ca_authority = content['ca_authority']['name']
+            try:
+                if self._get_specified_ca_authority(specified_ca_authority) is not None:
+                    raise DuplicateCAAuthority(ca_authority=specified_ca_authority)
+            except DuplicateCAAuthority as dca:
+                request.setResponseCode(dca.code)
+                return error_formatter(dca)
+            except CAAuthorityNotFound as caaunf:
+                pass
+            ca_authority = self._create_specified_ca_authority(specified_ca_authority)
+
+        except MissingData as md:
+            request.setResponseCode(400)
+            return error_formatter(md)
+        return self._format_ca_authorities(ca_authority)
 
     def render_DELETE(self, request):
-        pass
+        """This function will attempt to delete the given CA.
+        NOTE: Any certs signed by this CA will not longer be 
+        able to authenticate and so unable to renew certs.
+        """
+        try:
+            if request.postpath == [] or request.postpath[0] == '':
+                raise MissingData(sent_data='')
+            specified_ca_str = request.postpath[0]
+            self._get_specified_ca_authority(specified_ca_str)
+            if self._delete_specified_ca_authority(specified_ca_str):
+                result = request.setResponseCode(204)
+                return result
+        except MissingData as md:
+            request.setResponseCode(md.code)
+            return error_formatter(md)
+        except CAAuthorityNotFound as canf:
+            request.setResponseCode(canf.code)
+            return error_formatter(canf)
+        return None
 
-    def _format_response(self, response_obj, format_type=None):
-        if format_type is None:
-            format_type = 'json'
-        result = {}
-        result['cacertificates'] = []

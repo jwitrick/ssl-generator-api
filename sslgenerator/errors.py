@@ -78,7 +78,7 @@ class RouteNotSupported(Error):
 
 
 class CAAuthorityNotFound(Error):
-    """The specified Ca Authority not found.
+    """The specified CA Authority not found.
     %(ca_authority)s
     """
     code = 404
@@ -86,3 +86,25 @@ class CAAuthorityNotFound(Error):
 
     def __init__(self, ca_authority):
         super(CAAuthorityNotFound, self).__init__(ca_authority=ca_authority)
+
+
+class DuplicateCAAuthority(Error):
+    """The specified CA Authority already exists.
+    %(ca_authority)s
+    """
+    code = 409
+    title = 'Conflict'
+
+    def __init__(self, ca_authority):
+        super(DuplicateCAAuthority, self).__init__(ca_authority=ca_authority)
+
+
+class MissingData(Error):
+    """Some required data was not sent.
+    %(sent_data)s
+    """
+    code = 400
+    title = 'Bad Request'
+
+    def __init__(self, sent_data):
+        super(MissingData, self).__init__(sent_data=sent_data)
