@@ -18,9 +18,8 @@ from .common.config import cfg
 
 
 VERSION = "v1.0"
-routes = cfg.v1_0_routes
-mods = []
-
+ROUTES_SEC = 'v1.0:routes'
+routes = getattr(cfg, ROUTES_SEC)
 
 class V1_0(resource.Resource):
 

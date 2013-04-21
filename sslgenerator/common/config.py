@@ -13,18 +13,30 @@ class AttrDict(dict):
         return self[name]
 
 
-class MigrateConfig(object):
+class SSLConfigParser(object):
 
     def __init__(self, fnames, sections):
-        parser = ConfigParser.SafeConfigParser()
-        parser.read(fnames)
+        self.parser = ConfigParser.SafeConfigParser()
+        self.parser.read(fnames)
 
+        self.getSpecifiedSections(sections)
+
+        versions = str(self.general['api_versions']).split(' ')
+        for version in versions:
+            v_sections = self.getVersionSections(version)
+            self.getSpecifiedSections(v_sections)
+
+    def getVersionSections(self, version):
+        try:
+            setattr(self, version, AttrDict(self.parser.items(version)))
+            obj =  getattr(self, version)
+            return obj['sections'].split(', ')
+        except:
+            return []
+ 
+    def getSpecifiedSections(self, sections):
         for section in sections:
-            new_sec = section
-            for character in [".", ":"]:
-                new_sec = new_sec.replace(character, '_')
-            setattr(self, new_sec, AttrDict(parser.items(section)))
-
+            setattr(self, section, AttrDict(self.parser.items(section)))
 
 try:
     cfg = cfg
@@ -37,7 +49,7 @@ except NameError:
         global_config = '/etc/ssl-generator.ini'
         rel_config = 'etc/ssl-generator.ini'
         fnames = [home_config, global_config, rel_config]
-    cfg = MigrateConfig(fnames, ['general', "v1.0:routes"])
+    cfg = SSLConfigParser(fnames, ['general'])
 
 
 # vim:et:fdm=marker:sts=4:sw=4:ts=4

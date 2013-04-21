@@ -11,6 +11,9 @@ from ..common.utils import *
 class CAAuthorities(resource.Resource):
 
     isLeaf = True
+    _required_fields = ['name', 'days', 'country', 'state/provience',
+                        'locality', 'organization_name', 
+                        'organization_unit_name', 'common_name', 'email']
 
     def render_GET(self, request):
         """This function will return either:
@@ -67,9 +70,6 @@ class CAAuthorities(resource.Resource):
             result['ca_authorities'] = ca_authorities
         return JSONEncoder().encode(result)
 
-    _required_fields = ['name', 'days', 'country', 'state/provience',
-                        'locality', 'organization_name', 'organization_unit_name',
-                        'common_name', 'email']
     def _check_data_for_required_fields(self, data):
         if data['ca_authority'] is None:
             raise MissingData(sent_data=data) 

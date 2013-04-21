@@ -50,27 +50,24 @@ class CAAuthorities_v1_0_TestCase(unittest.TestCase):
         encoded = JSONEncoder().encode(expected_result)
         self.assertEquals(encoded, actual_result)
 
-    @patch.object(CAAuthorities, '_get_ca_authorities')
-    def test_get_list_ca_certs_empty_dir(self, mock_get_ca_authorities):
-        mock_get_ca_authorities.return_value = []
-        request = DummyRequest([''])
-        cert = CAAuthorities()
-        actual_result = cert.render_GET(request)
-        expected_result = {}
-        expected_result['ca_authorities'] = []
-        encoded = JSONEncoder().encode(expected_result)
-        self.assertEquals(encoded, actual_result)
-
     @patch.object(CAAuthorities, '_get_specified_ca_authority')
     def test_get_specified_ca_exists(self, mock_get_specified_ca_authority):
-        mock_result = {}
-        mock_result['ca'] = "test123"
-        mock_result['cacert'] = "BLAH....\nBLAH\nBLAH"
-        mock_get_specified_ca_authority.return_value = mock_result
+        ca_authority = {}
+        ca_authority['name'] = 'test123'
+        ca_authority['days'] = '500' 
+        ca_authority['country'] = 'US'
+        ca_authority['state/provience'] = 'Virginia'
+        ca_authority['locality'] = 'Blacksburg'
+        ca_authority['organization_name'] = 'Rackspace'
+        ca_authority['organization_unit_name'] = 'Email and Apps'
+        ca_authority['common_name'] = 'saopaulo-ca'
+        ca_authority['email'] = 'saopaulo-ca'
+        ca_authority['certificate'] = "BLAH....\nBLAH\nBLAH"
+        mock_get_specified_ca_authority.return_value = ca_authority
         request = DummyRequest(['test123'])
         cert = CAAuthorities()
         actual_result = cert.render_GET(request)
-        expected_result = {'ca_authority': mock_result}
+        expected_result = {'ca_authority': ca_authority}
         encoded = JSONEncoder().encode(expected_result)
         self.assertEquals(encoded, actual_result)
 
