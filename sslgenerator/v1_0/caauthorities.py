@@ -1,11 +1,11 @@
-from __future__ import absolute_import
+#from __future__ import absolute_import
 from twisted.web import resource
 import os
 import shutil
 
-from ..errors import *
-from ..common.config import cfg
-from ..common.utils import *
+from sslgenerator.errors import *
+from sslgenerator.common.config import cfg
+from sslgenerator.common.utils import *
 
 
 class CAAuthorities(resource.Resource):
@@ -15,11 +15,15 @@ class CAAuthorities(resource.Resource):
                         'locality', 'organization_name', 
                         'organization_unit_name', 'common_name', 'email']
 
+    def __init__(self):
+        resource.Resource.__init__(self)
+
     def render_GET(self, request):
         """This function will return either:
            1) All CA's if none is specified
            2) Information on the specified CA
         """
+        return "HELLO"
         directories = []
         result = {}
         if request.postpath == [] or request.postpath[0] == '':

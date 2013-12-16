@@ -26,7 +26,7 @@ class Certificates_v1_0_TestCase(unittest.TestCase):
     def getURL(self, path):
         return "http://127.0.0.1:%d/%s" % (self.portno, path)
 
-    def test_get(self):
+    def _test_get(self):
         request = DummyRequest(['/v1.0/certificates'])
         print dir(request)
         print request.uri

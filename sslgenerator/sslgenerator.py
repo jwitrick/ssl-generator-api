@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from twisted.web import server, resource
 from twisted.application import service, internet
-from twisted.internet import reactor
+from twisted.internet import reactor, ssl
 from twisted.python.failure import Failure as failure
 from twisted.web.http_headers import Headers
 from twisted.python import log
@@ -12,15 +12,16 @@ import json
 import re
 import os
 import sys
-from .common.utils import *
-from .errors import *
-from .common.config import cfg
-from .certificates import *
-from .v1 import *
+from sslgenerator.common.utils import *
+from sslgenerator.errors import *
+from sslgenerator.common.config import cfg
+#from certificates import *
+from sslgenerator.v_1_0 import *
 
 admin_token = str(cfg.general.admin_token)
 host_ip = str(cfg.general.listen_ip)
 host_port = int(cfg.general.listen_port)
+non_ssl_port = int(cfg.general.non_ssl_port)
 
 #routes = json.loads(cfg.routes.builtin_routes)
 
@@ -36,7 +37,6 @@ class Root(resource.Resource):
                 if name == "v1.0":
                     return V1_0()
                 if name in cfg.routes.keys():
-                    print "GETTING HERE"
                     return resource.Resource.getChild(self, name, request)
                 raise RouteNotSupported(route=name)
             except UnauthorizedToken as ut:
@@ -45,14 +45,18 @@ class Root(resource.Resource):
             except RouteNotSupported as rns:
                 request.setResponseCode(rns.code)
                 return error_formatter(rns)
-            except Exception:
+            except Exception as e:
+                print e
                 print "HANDLING EXCEPTION"
                 return ""
 
 
 def _check_admin_token(request):
+    whitelisted_routes = ["pxe", "kickstart"]
     token = request.getHeader('x-auth-token')
-    if admin_token.lower() == 'admin':
+    if request.postpath[0] in whitelisted_routes:
+        return True
+    elif admin_token.lower() == 'admin':
         return True
     if token is not None:
         if token.lower() == admin_token.lower():
@@ -72,19 +76,35 @@ def get_url_version(url):
 
 def main():
     root = Root()
-#    for routeName, className in cfg.routes.items():
-#        root.putChild(routeName, className)
     root.putChild("v1", V1_0())
 #    for routeName, className in routes.items():
 #        root.putChild(routeName, className)
     log.startLogging(sys.stdout)
     log.msg('Starting server: %s' % str(datetime.now()))
     app = server.Site(root)
-    reactor.listenTCP(host_port, app, interface=host_ip)
+#    reactor.listenSSL(host_port, app,
+#                      ssl.DefaultOpenSSLContextFactory(
+#            cfg.general.ssl_key, cfg.general.ssl_cert))
+    reactor.listenTCP(int(cfg.general.non_ssl_port), app, interface=host_ip)
+    reactor.listenTCP(8000, app, interface=host_ip)
     reactor.run()
 
 
 if __name__ == '__main__':
     main()
+
+else:
+    root = Root()
+    root.putChild("v1", V1_0())
+    log.startLogging(sys.stdout)
+    log.msg('Starting server: %s' % str(datetime.now()))
+    application = service.Application("dave-api")
+#    internet.SSLServer(host_port, server.Site(root),
+#                  ssl.DefaultOpenSSLContextFactory(
+#                    cfg.general.ssl_key, cfg.general.ssl_cert)
+#                  ).setServiceParent(application)
+    internet.TCPServer(non_ssl_port,
+                     server.Site(root)).setServiceParent(application)
+
 
 # vim:et:fdm=marker:sts=4:sw=4:ts=4
