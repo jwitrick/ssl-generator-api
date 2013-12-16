@@ -14,6 +14,9 @@ import json
 class Certificates(resource.Resource):
 
     isLeaf = True
+    def __init__(self):
+        resource.Resource.__init__(self)
+
 
     def render_GET(self, request):
         print "GETTING TO COORRECT PLACE"

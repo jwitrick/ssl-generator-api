@@ -23,7 +23,6 @@ class CAAuthorities(resource.Resource):
            1) All CA's if none is specified
            2) Information on the specified CA
         """
-        return "HELLO"
         directories = []
         result = {}
         if request.postpath == [] or request.postpath[0] == '':

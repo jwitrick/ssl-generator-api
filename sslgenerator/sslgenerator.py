@@ -29,15 +29,14 @@ non_ssl_port = int(cfg.general.non_ssl_port)
 class Root(resource.Resource):
 
     def getChild(self, name, request):
+        log.msg("Value of requests is: %s and name is: %s"%(request, name))
         if name == '':
             return self
         else:
             try:
-                _check_admin_token(request)
+                self._check_admin_token(request)
                 if name == "v1.0":
                     return V1_0()
-                if name in cfg.routes.keys():
-                    return resource.Resource.getChild(self, name, request)
                 raise RouteNotSupported(route=name)
             except UnauthorizedToken as ut:
                 request.setResponseCode(ut.code)
@@ -51,17 +50,19 @@ class Root(resource.Resource):
                 return ""
 
 
-def _check_admin_token(request):
-    whitelisted_routes = ["pxe", "kickstart"]
-    token = request.getHeader('x-auth-token')
-    if request.postpath[0] in whitelisted_routes:
-        return True
-    elif admin_token.lower() == 'admin':
-        return True
-    if token is not None:
-        if token.lower() == admin_token.lower():
-            return True
-    raise UnauthorizedToken(admin_token=token)
+    def _check_admin_token(self, request):
+        log.msg("value of expected is: %s"%admin_token)
+        try:
+            token = request.getHeader('x-auth-token')
+            if admin_token.lower() == 'admin':
+                return True
+            if token is not None:
+                if token.lower() == admin_token.lower():
+                    return True
+            raise UnauthorizedToken(admin_token=token)
+        except Exception as e:
+            print e
+            raise e
 
 
 def get_url_version(url):

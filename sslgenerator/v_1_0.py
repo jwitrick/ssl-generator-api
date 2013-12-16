@@ -8,7 +8,6 @@ from twisted.python import log
 from pprint import pprint
 from json import JSONEncoder
 from datetime import datetime
-from pprint import pprint
 import json
 import imp
 import importlib
@@ -23,10 +22,10 @@ class V1_0(resource.Resource):
 
     def __init__(self):
         resource.Resource.__init__(self)
-        print routes
+#        print routes
         for k, v in routes.iteritems():
-            print k
-            print type(k)
+#            log.msg(k)
+#            log.msg(type(k))
             mod = importlib.import_module(k)
             c = getattr(mod, v)()
             c_route = k.split('.')[-1]
