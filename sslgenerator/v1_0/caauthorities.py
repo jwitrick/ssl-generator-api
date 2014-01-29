@@ -1,5 +1,6 @@
 #from __future__ import absolute_import
 from twisted.web import resource
+from twisted.python import log
 import os
 import shutil
 
@@ -30,12 +31,39 @@ class CAAuthorities(resource.Resource):
             result = self._format_ca_authorities(directories, False)
         else:
             try:
-                specified_authority = self._get_specified_ca_authority(
-                    request.postpath[0])
-                result = self._format_ca_authorities(specified_authority)
+                log.msg(len(request.postpath))
+                if len(request.postpath) == 1:
+                    specified_authority = self._get_specified_ca_authority(
+                        request.postpath[0])
+                    result = self._format_ca_authorities(specified_authority)
+                elif len(request.postpath) > 1:
+                    ca_auth = request.postpath[1]
+                    if len(request.postpath) == 2:
+                        #get all cert for ca.
+                        return JSONEncoder().encode({"Sample data": "Some value"})
+                    elif len(request.postpath) == 3:
+                        #they want redactor or valid certs.
+                        action = request.postpath[2].to_lower()
+                        if action == "valid":
+                            #they want all valid certs
+                            pass
+                        elif action == "redacted":
+                            #they want all redacted certs for this ca
+                            pass
+                        else:
+                            #Raise unknow action exception
+                            raise RouteNotSupported(route=action)
+                    #if len == 1 then ensure its 'certificates, and if it is
+                    #then return all valid, and redacted certficiates for this ca.
+                    #if len == 2 and [1] is 'certificates' then ensure [2] is 'valid' or 'redacted'
+                    #   than return what they way (either valid or redacted)
+
             except CAAuthorityNotFound as canf:
                 request.setResponseCode(canf.code)
                 return error_formatter(canf)
+            except RouteNotSupported as rns:
+                request.setResponseCode(rns.code)
+                return error_formatter(rns)
         return result
 
     def _get_ca_authorities(self):

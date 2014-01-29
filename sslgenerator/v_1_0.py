@@ -22,10 +22,7 @@ class V1_0(resource.Resource):
 
     def __init__(self):
         resource.Resource.__init__(self)
-#        print routes
         for k, v in routes.iteritems():
-#            log.msg(k)
-#            log.msg(type(k))
             mod = importlib.import_module(k)
             c = getattr(mod, v)()
             c_route = k.split('.')[-1]

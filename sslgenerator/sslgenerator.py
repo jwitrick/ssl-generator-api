@@ -29,7 +29,6 @@ non_ssl_port = int(cfg.general.non_ssl_port)
 class Root(resource.Resource):
 
     def getChild(self, name, request):
-        log.msg("Value of requests is: %s and name is: %s"%(request, name))
         if name == '':
             return self
         else:
@@ -49,9 +48,7 @@ class Root(resource.Resource):
                 print "HANDLING EXCEPTION"
                 return ""
 
-
     def _check_admin_token(self, request):
-        log.msg("value of expected is: %s"%admin_token)
         try:
             token = request.getHeader('x-auth-token')
             if admin_token.lower() == 'admin':
@@ -104,8 +101,9 @@ else:
 #                  ssl.DefaultOpenSSLContextFactory(
 #                    cfg.general.ssl_key, cfg.general.ssl_cert)
 #                  ).setServiceParent(application)
-    internet.TCPServer(non_ssl_port,
-                     server.Site(root)).setServiceParent(application)
+    internet.TCPServer(
+        non_ssl_port,
+        server.Site(root)).setServiceParent(application)
 
 
 # vim:et:fdm=marker:sts=4:sw=4:ts=4
